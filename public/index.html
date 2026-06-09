@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>টাকার বাজার</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; font-family: sans-serif; }
+        .gradient-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+    </style>
+</head>
+<body class="p-4">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="font-bold text-lg text-slate-800">টাকার বাজার</h2>
+        <div class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">৳ <span id="bal">0.00</span></div>
+    </div>
+    <div class="gradient-card rounded-3xl p-6 text-white mb-6 shadow-xl text-center">
+        <p class="text-sm opacity-80 mb-2">মোট আয়</p>
+        <h1 class="text-4xl font-bold mb-6 text-orange-400">৳ 0.00</h1>
+        <button class="bg-orange-500 w-full py-3 rounded-xl font-bold">💰 আয় করুন</button>
+    </div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+    </script>
+</body>
+</html>
