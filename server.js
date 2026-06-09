@@ -1,14 +1,30 @@
+require('dotenv').config();
+const { Telegraf, Markup } = require('telegraf');
 const express = require('express');
 const path = require('path');
 const app = express();
+
+const bot = new Telegraf(process.env.BOT_TOKEN);
 const PORT = process.env.PORT || 3000;
 
-// public ফোল্ডারের ভেতরের index.html এবং অন্যান্য ফাইল স্ট্যাটিক হিসেবে ওপেন করার জন্য
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-// যে কোনো রিকোয়েস্ট আসলেই সরাসরি আমাদের সুন্দর ড্যাশবোর্ড ফাইলটি দেখাবে
+bot.start((ctx) => {
+    const username = ctx.from.first_name;
+    ctx.reply(
+        `স্বাগতম ${username}!\n"টাকার বাজার" বটের ড্যাশবোর্ড ওপেন করতে নিচের বাটনে ক্লিক করুন।`,
+        Markup.keyboard([
+            [Markup.button.webApp('🏪 ওপেন বাজার', 'https://takar-bazar.onrender.com')]
+        ]).resize()
+    );
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+bot.launch().then(() => {
+    console.log('টাকার বাজার বট চালু হয়েছে...');
 });
 
 app.listen(PORT, () => {
