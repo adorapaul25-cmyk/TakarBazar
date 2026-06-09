@@ -1,29 +1,223 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>টাকার বাজার</title>
+    <title>Takar Bazar Dashboard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #f3f4f6; font-family: sans-serif; }
-        .gradient-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            padding: 20px;
+        }
+        .header {
+            background-color: #1a253a;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            margin-bottom: 20px;
+        }
+        .header h1 { font-size: 18px; margin: 0; }
+        .header .user-info { display: flex; align-items: center; gap: 10px; }
+        .header .user-info img { width: 30px; height: 30px; border-radius: 50%; }
+        .header .user-info h2 { font-size: 14px; margin: 0; }
+        .header .user-info span { font-size: 12px; color: #7f8c8d; }
+        .header .balance-box {
+            background-color: #f39c12;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .balance-card {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .balance-card .balance-title { font-size: 14px; color: #7f8c8d; }
+        .balance-card .balance-amount { font-size: 30px; font-weight: bold; color: #f39c12; margin: 10px 0; }
+        .balance-card .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        .balance-card .action-buttons button {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 45%;
+        }
+        .balance-card .action-buttons button.withdraw {
+            background-color: #34495e;
+        }
+
+        .status-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .status-box {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            width: 45%;
+        }
+        .status-box i { font-size: 24px; color: #f39c12; margin-bottom: 10px; }
+        .status-box h3 { font-size: 14px; color: #7f8c8d; margin: 0; }
+        .status-box p { font-size: 18px; font-weight: bold; color: #333; margin: 5px 0 0; }
+
+        .rules-link {
+            text-align: right;
+            font-size: 12px;
+            color: #7f8c8d;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .refer-section {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .refer-section h2 { font-size: 16px; margin: 0 0 10px; }
+        .refer-section p { font-size: 12px; color: #7f8c8d; margin: 0 0 15px; }
+        .refer-section .link-box {
+            background-color: #f0f2f5;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #7f8c8d;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+        .refer-section button {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .channel-section {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .channel-section h2 { font-size: 16px; margin: 0 0 10px; }
+        .channel-section p { font-size: 12px; color: #7f8c8d; margin: 0; }
+
+        .footer-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+        }
+        .footer-nav a {
+            text-decoration: none;
+            color: #7f8c8d;
+            font-size: 12px;
+            text-align: center;
+        }
+        .footer-nav a.active {
+            color: #f39c12;
+        }
+        .footer-nav i { font-size: 20px; margin-bottom: 5px; }
     </style>
 </head>
-<body class="p-4">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="font-bold text-lg text-slate-800">টাকার বাজার</h2>
-        <div class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">৳ <span id="bal">0.00</span></div>
+<body>
+
+    <div class="header">
+        <div class="user-info">
+            <img src="https://via.placeholder.com/30" alt="User Avatar">
+            <div>
+                <h2><span id="user-name">FX™ARNOB TRADER</span></h2>
+                <span>স্বাগতম</span>
+            </div>
+        </div>
+        <div class="balance-box">৳ <span id="money-header">265.00</span></div>
     </div>
-    <div class="gradient-card rounded-3xl p-6 text-white mb-6 shadow-xl text-center">
-        <p class="text-sm opacity-80 mb-2">মোট আয়</p>
-        <h1 class="text-4xl font-bold mb-6 text-orange-400">৳ 0.00</h1>
-        <button class="bg-orange-500 w-full py-3 rounded-xl font-bold">💰 আয় করুন</button>
+
+    <div class="container">
+        <div class="balance-card">
+            <div class="balance-title">আপনার মোট আয়</div>
+            <div class="balance-amount">৳ <span id="money-card">8505.00</span></div>
+            <div class="action-buttons">
+                <button>আয় করুন</button>
+                <button class="withdraw">উত্তোলন</button>
+            </div>
+        </div>
+
+        <div class="rules-link"><i class="fas fa-info-circle"></i> নিয়মাবলী</div>
+
+        <div class="status-section">
+            <div class="status-box">
+                <i class="fas fa-eye"></i>
+                <h3>মোট এড দেখা</h3>
+                <p><span id="total-ads">274</span></p>
+            </div>
+            <div class="status-box">
+                <i class="fas fa-users"></i>
+                <h3>মোট রেফারেল</h3>
+                <p><span id="total-refers">31</span></p>
+            </div>
+        </div>
+
+        <div class="refer-section">
+            <h2>রেফার ও আয়</h2>
+            <p>প্রতি রেফারেল পাবেন ৳50 বোনাস!</p>
+            <div class="link-box">https://t.me/TakarBazarBot?start=arnobtrader</div>
+            <button>কপি</button>
+        </div>
+
+        <div class="channel-section">
+            <h2>পেমেন্ট প্রুফ চ্যানেল</h2>
+            <p>সকল আপডেট ও পেমেন্ট প্রুফ</p>
+        </div>
     </div>
+
+    <div class="footer-nav">
+        <a href="#" class="active"><i class="fas fa-home"></i><br>হোম</a>
+        <a href="#"><i class="fas fa-tasks"></i><br>টাস্ক</a>
+        <a href="#"><i class="fas fa-wallet"></i><br>উইথড্র</a>
+        <a href="#"><i class="fas fa-user"></i><br>প্রোফাইল</a>
+    </div>
+
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        const tele = window.Telegram.WebApp;
+        tele.expand();
+        // টেলিগ্রাম থেকে ইউজার তথ্য নিয়ে বসালে এখানে কোড যোগ করতে হবে।
     </script>
 </body>
 </html>
