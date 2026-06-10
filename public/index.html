@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FX™ ARNOB TRADER</title>
+    <script src="https://telegram.org/js/telegram-webapp.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-weight/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -20,14 +21,13 @@
         .user-profile { display: flex; align-items: center; gap: 12px; }
         .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #f97316; }
         .user-details h3 { font-size: 15px; color: #fff; }
-        .user-details p { font-size: 11px; color: #94a3b8; }
+        .user-details p { font-size: 11px; color: #10b981; font-weight: bold; }
         .header-balance { background: rgba(249, 115, 22, 0.2); border: 1px solid #f97316; color: #f97316; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; }
         
         /* Main Container */
         .container { padding: 15px; display: none; }
         .container.active { display: block; }
         
-        /* Cards & UI elements matching screenshot */
         .main-card { background: #1e293b; color: white; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(15,23,42,0.3); }
         .main-card p { font-size: 14px; color: #94a3b8; }
         .main-card h1 { font-size: 36px; color: #f97316; font-weight: 800; margin: 10px 0; }
@@ -83,15 +83,15 @@
 
     <div id="loading-screen">
         <div class="spinner"></div>
-        <p>ডাটা লোড হচ্ছে...</p>
+        <p id="loading-txt">ইউজার ডাটা চেক করা হচ্ছে...</p>
     </div>
 
     <div class="header">
         <div class="user-profile">
-            <img class="user-avatar" src="https://i.ibb.co/6R4vX3n/arnob-profile.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Arnob&background=f97316&color=fff'">
+            <img class="user-avatar" id="uAvatar" src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff">
             <div class="user-details">
-                <h3 onclick="triggerAdminAccess()">FX™ ARNOB TRADER</h3>
-                <p>স্বাগতম (সিক্রেট মোড)</p>
+                <h3 onclick="triggerAdminAccess()" id="topName">লোডিং...</h3>
+                <p>ভেরিফাইড মেম্বার ✅</p>
             </div>
         </div>
         <div class="header-balance"><i class="fas fa-wallet"></i> ৳ <span id="hBal">0.00</span></div>
@@ -109,7 +109,7 @@
 
         <div class="section-title">
             <span>আপনার স্ট্যাটাস</span>
-            <button class="btn-rules"> नियमोंवली</button>
+            <button class="btn-rules"> নিয়ামাবলী</button>
         </div>
 
         <div class="status-grid">
@@ -118,10 +118,10 @@
         </div>
 
         <div class="refer-box">
-            <h4>রেফার ও আয়</h4>
-            <p>প্রতি রেফারেলের পাবেন ৳৫০ বোনাস!</p>
+            <h4>রেফার লিংক</h4>
+            <p>আপনার বন্ধুদের ইনভাইট করুন!</p>
             <div class="copy-group">
-                <input type="text" id="refLink" value="https://t.me/TakarBazarBot?start=7218579149" readonly>
+                <input type="text" id="refLink" value="" readonly>
                 <button class="btn-copy" onclick="copyCode()">কপি</button>
             </div>
         </div>
@@ -129,8 +129,7 @@
 
     <div id="p2" class="container">
         <div class="section-title"><span>টাস্ক সেন্টার</span></div>
-        <div id="dynamic-tasks-holder">
-            </div>
+        <div id="dynamic-tasks-holder"></div>
     </div>
 
     <div id="p3" class="container">
@@ -155,9 +154,9 @@
 
     <div id="p4" class="container">
         <div class="profile-card">
-            <img class="p-avatar" src="https://i.ibb.co/6R4vX3n/arnob-profile.jpg" onerror="this.src='https://ui-avatars.com/api/?name=Arnob&background=f97316&color=fff'">
-            <h3>FX™ ARNOB TRADER</h3>
-            <span class="p-id">আইডি: 7218579149</span>
+            <img class="p-avatar" id="pAvatarMain" src="https://ui-avatars.com/api/?name=User&background=f97316&color=fff">
+            <h3 id="profName">টেলিগ্রাম ইউজার</h3>
+            <span class="p-id" id="profId">আইডি: 00000000</span>
         </div>
     </div>
 
@@ -186,40 +185,58 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // ডেমো সিঙ্গেল ইউজার ট্র্যাকিং সিস্টেম (লগইন ছাড়া)
-        const userPath = "users/demo_user_7218";
-        let userData = { balance: 265.00, totalAds: 274, totalRef: 31 };
+        // টেলিগ্রাম অবজেক্ট ইনিশিয়ালাইজ করা
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // ফুল স্ক্রিন ওপেন করা
+
+        // টেলিগ্রাম ইউজার ডাটা বের করা (বট থেকে না ঢুকলে ডেমো ডাটা নেবে রিভিউ এর জন্য)
+        let tgUser = tg.initDataUnsafe?.user || { id: "7218579149", first_name: "FX™ ARNOB TRADER", username: "developerarnob" };
+        
+        const userId = tgUser.id;
+        const userName = tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "");
+        const userPath = `users/${userId}`;
+        
+        let userData = { name: userName, balance: 0.00, totalAds: 0, totalRef: 0, id: userId };
         let currentMethod = "bKash";
         let clickCount = 0;
 
-        // লোডিং মেকানিজম এবং লাইভ ডাটা রিড
         window.onload = function() {
+            // রেফার কোড জেনারেট
+            document.getElementById('refLink').value = `https://t.me/আপনার_বটের_নাম_bot?start=${userId}`;
+            
             setTimeout(() => {
                 get(ref(db, userPath)).then((snapshot) => {
                     if (snapshot.exists()) {
                         userData = snapshot.val();
                     } else {
+                        // ডাটাবেজে নতুন ইউজার হলে ডাটা ক্রিয়েট হবে
                         set(ref(db, userPath), userData);
                     }
                     renderUI();
                     loadLiveTasks();
                     document.getElementById('loading-screen').style.display = 'none';
                 });
-            }, 1800); // ১.৮ সেকেন্ড লোডিং অ্যানিমেশন স্ক্রিন
+            }, 2000); // আপনার রিকোয়েস্ট অনুযায়ী সুন্দর ২ সেকেন্ড লোডিং নেবে
         };
 
         function renderUI() {
+            document.getElementById('topName').innerText = userData.name;
+            document.getElementById('profName').innerText = userData.name;
+            document.getElementById('profId').innerText = "আইডি: " + userData.id;
+            
+            let avatarUrl = tgUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=f97316&color=fff`;
+            document.getElementById('uAvatar').src = avatarUrl;
+            document.getElementById('pAvatarMain').src = avatarUrl;
+
             document.getElementById('hBal').innerText = parseFloat(userData.balance).toFixed(2);
             document.getElementById('mBal').innerText = "৳ " + parseFloat(userData.balance).toFixed(2);
             document.getElementById('sAds').innerText = userData.totalAds;
             document.getElementById('sRef').innerText = userData.totalRef;
             
-            // কন্ডিশনাল স্ট্যাটাস চেক
             document.getElementById('c-ref').innerText = `${userData.totalRef}/20`;
             document.getElementById('c-ads').innerText = `${userData.totalAds}/100`;
         }
 
-        // অ্যাডমিন থেকে টাস্ক ডাটা লোড করা
         function loadLiveTasks() {
             get(ref(db, 'tasks_center')).then((snapshot) => {
                 const holder = document.getElementById('dynamic-tasks-holder');
@@ -251,7 +268,7 @@
             userData.totalAds += 1;
             update(ref(db, userPath), userData).then(() => {
                 renderUI();
-                alert("টাস্ক রিওয়ার্ড সফলভাবে যোগ হয়েছে! 🎉");
+                alert("টাস্ক বোনাস সফলভাবে যোগ হয়েছে! 🎉");
             });
         };
 
@@ -267,10 +284,10 @@
             
             const reqId = Date.now();
             set(ref(db, 'withdraws/' + reqId), {
-                method: currentMethod, number: num, amount: amt, status: "Pending"
+                userId: userId, name: userData.name, method: currentMethod, number: num, amount: amt, status: "Pending"
             }).then(() => {
                 renderUI();
-                alert("উইথড্র রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+                alert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
             });
         };
 
@@ -289,7 +306,7 @@
 
         window.copyCode = function() {
             let cp = document.getElementById('refLink'); cp.select();
-            navigator.clipboard.writeText(cp.value); alert("লিংক কপি হয়েছে!");
+            navigator.clipboard.writeText(cp.value); alert("রেফার লিংক কপি হয়েছে!");
         };
 
         window.triggerAdminAccess = function() {
@@ -303,3 +320,4 @@
     </script>
 </body>
 </html>
+
