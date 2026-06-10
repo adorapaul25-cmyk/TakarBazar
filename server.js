@@ -13,9 +13,8 @@ bot.start((ctx) => {
     const username = ctx.from.first_name;
     ctx.reply(
         `স্বাগতম ${username}!\n"টাকার বাজার" বটের ড্যাশবোর্ড ওপেন করতে নিচের বাটনে ক্লিক করুন।`,
-        Markup.keyboard([
-            [Markup.button.webApp('🏪 ওপেন বাজার', 'https://takar-bazar.onrender.comhttps://takar-bazar-app-99.onrender.com')]
-        ]).resize()
+        
+       [Markup.button.webApp('🏪 ড্যাশবোর্ড ওপেন করুন', 'https://takar-bazar-app-99.onrender.com')]       ]).resize()
     );
 });
 
