@@ -1,16 +1,90 @@
-// আগের কোডের পরিবর্তে এই অংশটি বসান
-const tg = window.Telegram.WebApp;
-tg.expand();
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX™ ARNOB TRADER</title>
+    <script src="https://telegram.org/js/telegram-webapp.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f4f6f9; color: #333; padding-bottom: 80px; }
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #f97316; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .header { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; display: flex; align-items: center; justify-content: space-between; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #f97316; }
+        .container { padding: 15px; display: none; }
+        .container.active { display: block; }
+        .main-card { background: #1e293b; color: white; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 68px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #e2e8f0; z-index: 1000; }
+        .nav-item { text-align: center; color: #94a3b8; cursor: pointer; flex: 1; font-size: 12px; }
+        .nav-item.active { color: #f97316; }
+    </style>
+</head>
+<body>
+    <div id="loading-screen"><div class="spinner"></div><p>ইউজার ডাটা চেক করা হচ্ছে...</p></div>
 
-let tgUser = tg.initDataUnsafe?.user;
+    <div class="header">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <img class="user-avatar" id="uAvatar" src="https://ui-avatars.com/api/?name=User">
+            <div><h3 id="topName">লোডিং...</h3></div>
+        </div>
+        <div id="hBal">৳ 0.00</div>
+    </div>
 
-// যদি টেলিগ্রাম থেকে ডাটা পায় তবে তা দিয়ে ইউজার প্রোফাইল সেট হবে
-if (tgUser) {
-    var userId = tgUser.id;
-    var userName = tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "");
-} else {
-    // বটের বাইরে থেকে ঢুকলে ডেমো ডাটা (রিভিউ এর জন্য)
-    var userId = "7218579149";
-    var userName = "User";
-}
+    <div id="p1" class="container active">
+        <div class="main-card">
+            <h1>৳ <span id="mBal">0.00</span></h1>
+            <button onclick="switchTab('p2', 'n2')">আয় করুন</button>
+        </div>
+    </div>
 
+    <div class="nav-bar">
+        <div id="n1" class="nav-item active" onclick="switchTab('p1', 'n1')"><i class="fas fa-home"></i><span>হোম</span></div>
+        <div id="n2" class="nav-item" onclick="switchTab('p2', 'n2')"><i class="fas fa-briefcase"></i><span>টাস্ক</span></div>
+        <div id="n3" class="nav-item" onclick="switchTab('p3', 'n3')"><i class="fas fa-wallet"></i><span>উইথড্র</span></div>
+        <div id="n4" class="nav-item" onclick="switchTab('p4', 'n4')"><i class="fas fa-user"></i><span>প্রোফাইল</span></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCItXGC1it79tWhw4Ye2lIM_c2kjEC-37c",
+            authDomain: "takar-bazar-a0e29.firebaseapp.com",
+            projectId: "takar-bazar-a0e29",
+            databaseURL: "https://takar-bazar-a0e29-default-rtdb.firebaseio.com/"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // টেলিগ্রাম ইউজার ডাটা ট্র্যাকিং
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        let tgUser = tg.initDataUnsafe?.user;
+        let userId = tgUser ? tgUser.id : "7218579149";
+        let userName = tgUser ? (tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "")) : "User";
+
+        window.onload = () => {
+            document.getElementById('topName').innerText = userName;
+            document.getElementById('uAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
+            
+            get(ref(db, 'users/' + userId)).then((snap) => {
+                let data = snap.exists() ? snap.val() : { name: userName, balance: 265.00 };
+                document.getElementById('mBal').innerText = data.balance;
+                document.getElementById('hBal').innerText = "৳ " + data.balance;
+                document.getElementById('loading-screen').style.display = 'none';
+            });
+        };
+
+        window.switchTab = function(pId, nId) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.getElementById(pId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(nId).classList.add('active');
+        };
+    </script>
+</body>
+</html>
