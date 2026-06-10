@@ -185,38 +185,50 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // টেলিগ্রাম অবজেক্ট ইনিশিয়ালাইজ করা
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // ফুল স্ক্রিন ওপেন করা
+        // স্মার্ট বাইপাস মেকানিজম (টেলিগ্রাম অবজেক্ট না থাকলে ডিফল্ট ডেমো ডাটা ধরবে)
+        let tgUser = null;
+        try {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
+                tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+                window.Telegram.WebApp.expand();
+            }
+        } catch (e) {
+            console.log("Not running inside Telegram, switching to Demo Mode.");
+        }
 
-        // টেলিগ্রাম ইউজার ডাটা বের করা (বট থেকে না ঢুকলে ডেমো ডাটা নেবে রিভিউ এর জন্য)
-        let tgUser = tg.initDataUnsafe?.user || { id: "7218579149", first_name: "FX™ ARNOB TRADER", username: "developerarnob" };
+        // যদি টেলিগ্রাম ডাটা না পায়, তবে রিভিউ এর জন্য ডেমো ডাটা দিয়ে ড্যাশবোর্ড ওপেন করবে
+        if (!tgUser) {
+            tgUser = { id: "7218579149", first_name: "FX™ ARNOB TRADER", username: "developerarnob" };
+        }
         
         const userId = tgUser.id;
         const userName = tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "");
         const userPath = `users/${userId}`;
         
-        let userData = { name: userName, balance: 0.00, totalAds: 0, totalRef: 0, id: userId };
+        let userData = { name: userName, balance: 265.00, totalAds: 274, totalRef: 31, id: userId };
         let currentMethod = "bKash";
         let clickCount = 0;
 
         window.onload = function() {
-            // রেফার কোড জেনারেট
-            document.getElementById('refLink').value = `https://t.me/আপনার_বটের_নাম_bot?start=${userId}`;
+            document.getElementById('refLink').value = `https://t.me/TakarBazarBot?start=${userId}`;
             
             setTimeout(() => {
                 get(ref(db, userPath)).then((snapshot) => {
                     if (snapshot.exists()) {
                         userData = snapshot.val();
                     } else {
-                        // ডাটাবেজে নতুন ইউজার হলে ডাটা ক্রিয়েট হবে
                         set(ref(db, userPath), userData);
                     }
                     renderUI();
                     loadLiveTasks();
                     document.getElementById('loading-screen').style.display = 'none';
+                }).catch((error) => {
+                    // ফায়ারবেস ইরর হ্যান্ডেল করে সরাসরি অ্যাপ চালু করা
+                    renderUI();
+                    loadLiveTasks();
+                    document.getElementById('loading-screen').style.display = 'none';
                 });
-            }, 2000); // আপনার রিকোয়েস্ট অনুযায়ী সুন্দর ২ সেকেন্ড লোডিং নেবে
+            }, 2000); // ২ সেকেন্ড নিখুঁত লোডিং নেবে
         };
 
         function renderUI() {
@@ -287,7 +299,7 @@
                 userId: userId, name: userData.name, method: currentMethod, number: num, amount: amt, status: "Pending"
             }).then(() => {
                 renderUI();
-                alert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
+                alert("উইথड्र রিকোয়েস্ট পাঠানো হয়েছে!");
             });
         };
 
@@ -320,4 +332,3 @@
     </script>
 </body>
 </html>
-
