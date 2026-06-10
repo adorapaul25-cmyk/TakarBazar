@@ -3,234 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>টাকার ডিম বট ড্যাশবোর্ড</title>
+    <title>টাকার ডিম ড্যাশবোর্ড</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-weight/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #f4f6f9; color: #333; padding-bottom: 70px; }
-        .header { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .user-profile { display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #f97316; object-fit: cover; }
-        .user-details h3 { font-size: 16px; font-weight: 700; color: #fff; cursor: pointer; }
-        .user-details p { font-size: 12px; color: #94a3b8; }
-        .header-balance { background: #f97316; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 15px; }
-        .container { padding: 15px; display: none; }
-        .container.active { display: block; }
-        .main-card { background: #1e293b; color: white; border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 20px; }
-        .main-card h1 { font-size: 36px; color: #f97316; font-weight: 800; margin: 10px 0; }
-        .card-buttons { display: flex; gap: 15px; justify-content: center; }
-        .btn-main { background: #f97316; color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-main.outline { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
-        .status-grid { display: flex; gap: 15px; margin-bottom: 20px; }
-        .status-box { background: white; border-radius: 15px; padding: 15px; flex: 1; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .status-box h2 { font-size: 22px; color: #1e293b; font-weight: 700; }
-        .section-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 15px 0 10px 5px; }
-        .refer-box { background: linear-gradient(135deg, #7c3aed, #4c1d95); color: white; border-radius: 20px; padding: 20px; }
-        .link-input-group { display: flex; background: rgba(255,255,255,0.15); border-radius: 10px; padding: 5px; }
-        .link-input-group input { background: none; border: none; color: white; padding: 8px; width: 100%; outline: none; }
-        .btn-copy { background: white; color: #7c3aed; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .task-card { background: white; border-radius: 15px; padding: 15px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .btn-task { background: #1e293b; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; }
-        .withdraw-info { background: white; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
-        .condition-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .condition-item span.fail { color: #ef4444; font-weight: bold; }
-        .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .method-card { background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .method-card img { height: 35px; margin-bottom: 8px; }
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 60px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #e2e8f0; }
-        .nav-item { text-align: center; color: #94a3b8; cursor: pointer; flex: 1; }
-        .nav-item i { font-size: 18px; display: block; }
-        .nav-item span { font-size: 11px; font-weight: bold; }
-        .nav-item.active { color: #f97316; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        body { background-color: #f0f2f5; padding-bottom: 80px; }
+        
+        /* Header */
+        .header { background: #1a202c; color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-radius: 0 0 20px 20px; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ed8936; }
+        .welcome-text h3 { font-size: 14px; margin-bottom: 2px; }
+        .welcome-text p { font-size: 11px; color: #48bb78; font-weight: bold; }
+        .bal-pill { background: #ed8936; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; }
 
-        /* Admin Panel Styles */
-        .admin-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; }
-        .btn-admin-save { width: 100%; background: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .container { padding: 15px; display: none; }
+        .active { display: block; }
+
+        /* Page 1 Home */
+        .card { background: #2d3748; color: white; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 15px; }
+        .card h1 { font-size: 30px; color: #ed8936; margin: 10px 0; }
+        .btn-row { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-earn { background: #ed8936; color: white; }
+        .btn-with { background: #4a5568; color: white; }
+        .rules-bar { background: white; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; color: #2d3748; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stat-grid { display: flex; gap: 10px; margin-bottom: 15px; }
+        .stat-box { background: white; flex: 1; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stat-box p { font-size: 12px; color: #718096; }
+        .stat-box h2 { font-size: 18px; color: #2d3748; }
+        .ref-box { background: #6b46c1; color: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; }
+        .proof-btn { background: #3182ce; color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; }
+
+        /* Page 2 Tasks */
+        .task-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .task-btn { background: #2d3748; color: white; padding: 8px 15px; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; }
+
+        /* Page 3 Withdraw */
+        .cond-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .cond-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #edf2f7; font-size: 13px; }
+        .withdraw-input { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; margin-bottom: 10px; }
+        .method-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
+        .method { background: white; padding: 8px 2px; text-align: center; border-radius: 8px; border: 1px solid #cbd5e0; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .method.selected { border-color: #ed8936; background: #fffaf0; color: #ed8936; }
+
+        /* Page 4 Profile */
+        .prof-top { background: #2d3748; color: white; padding: 30px; border-radius: 15px; text-align: center; margin-bottom: 15px; }
+        .prof-top img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #ed8936; margin-bottom: 10px; }
+        .prof-btn-row { display: flex; flex-direction: column; gap: 10px; }
+
+        /* Navbar */
+        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 70px; display: flex; border-top: 1px solid #edf2f7; }
+        .nav-item { flex: 1; text-align: center; padding-top: 12px; color: #a0aec0; cursor: pointer; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+        .nav-item span { font-size: 12px; font-weight: bold; }
+        .nav-item.active { color: #ed8936; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="user-profile">
-            <img class="user-avatar" src="https://ui-avatars.com/api/?name=Arnob&background=f97316&color=fff" alt="Profile">
-            <div class="user-details" onclick="adminTrigger()">
-                <h3 id="adminTitle">FX™ ARNOB TRADER</h3>
-                <p>স্বাগতম (সিক্রেট মোড)</p>
+        <div class="user-info">
+            <img src="https://ui-avatars.com/api/?name=Arnob&background=ed8936&color=fff" class="avatar">
+            <div class="welcome-text">
+                <h3 onclick="openAdmin()">FX™ ARNOB TRADER</h3>
+                <p>স্বাগতম</p>
             </div>
         </div>
-        <div class="header-balance">
-            ৳ <span id="topBal">0.00</span>
-        </div>
+        <div class="bal-pill">৳ <span id="hBal">0.00</span></div>
     </div>
 
-    <div id="home" class="container active">
-        <div class="main-card">
+    <div id="p1" class="container active">
+        <div class="card">
             <p>আপনার মোট আয়</p>
-            <h1 id="mainBal">৳ 0.00</h1>
-            <div class="card-buttons">
-                <button class="btn-main" onclick="switchTab('tasks')">আয় করুন</button>
-                <button class="btn-main outline" onclick="switchTab('withdraw')">উত্তোলন</button>
+            <h1 id="mBal">৳ 0.00</h1>
+            <div class="btn-row">
+                <button class="btn btn-earn" onclick="nav('p2', 'n2')">আয় করুন</button>
+                <button class="btn btn-with" onclick="nav('p3', 'n3')">উত্তোলন</button>
             </div>
         </div>
-        <div class="section-title">আপনার স্ট্যাটাস</div>
-        <div class="status-grid">
-            <div class="status-box">
-                <p>মোট এড দেখা</p>
-                <h2 id="statAds">0</h2>
-            </div>
-            <div class="status-box">
-                <p>মোট রেফারেল</p>
-                <h2 id="statRef">0</h2>
-            </div>
+        <div class="rules-bar" onclick="alert('নিয়ম: দৈনিক ৫০টি অ্যাড দেখুন এবং ২০টি রেফার করুন।')">কাজের নিয়মাবলী</div>
+        <div class="stat-grid">
+            <div class="stat-box"><p>অ্যাড ভিউ</p><h2 id="sAds">0</h2></div>
+            <div class="stat-box"><p>রেফারেল</p><h2 id="sRef">0</h2></div>
         </div>
-        <div class="refer-box">
-            <h3>রেফার ও আয়</h3>
-            <p>প্রতি রেফারেলে পাবেন ৳৫০ বোনাস!</p>
-            <div class="link-input-group">
-                <input type="text" value="https://t.me/TakarBazarBot?start=7218579149" readonly>
-                <button class="btn-copy">কপি</button>
-            </div>
+        <div class="ref-box">
+            <p style="font-size:12px; margin-bottom:5px;">রেফার লিংক:</p>
+            <input type="text" id="rL" value="https://t.me/Bot?start=7218579149" readonly style="width:100%; padding:8px; border-radius:5px; border:none; font-size:11px;">
         </div>
+        <button class="proof-btn">পেমেন্ট ফ্রুপ চ্যানেল</button>
     </div>
 
-    <div id="tasks" class="container">
-        <div class="section-title">টাস্ক সেন্টার</div>
-        <div class="task-card">
-            <div>
-                <h4 id="t1Name">অফিসিয়াল চ্যানেল জয়েন</h4>
-                <p style="color:#10b981; font-weight:bold;">+৳২০ বোনাস</p>
-            </div>
-            <button class="btn-task" onclick="window.open(t1Link)">জয়েন</button>
-        </div>
-        <div class="task-card">
-            <div>
-                <h4 id="t2Name">ইউটিউব সাবস্ক্রাইব</h4>
-                <p style="color:#10b981; font-weight:bold;">+৳২০ বোনাস</p>
-            </div>
-            <button class="btn-task" onclick="window.open(t2Link)">সাবস্ক্রাইব</button>
-        </div>
+    <div id="p2" class="container">
+        <h4 style="margin-bottom:15px;">দৈনিক অ্যাড (৫টি অপশন)</h4>
+        <div class="task-item"><span>অ্যাড টাস্ক - ১</span><button class="task-btn" onclick="addMoney(1.5)">দেখুন</button></div>
+        <div class="task-item"><span>অ্যাড টাস্ক - ২</span><button class="task-btn" onclick="addMoney(1.5)">দেখুন</button></div>
+        <div class="task-item"><span>অ্যাড টাস্ক - ৩</span><button class="task-btn" onclick="addMoney(1.5)">দেখুন</button></div>
+        <div class="task-item"><span>অ্যাড টাস্ক - ৪</span><button class="task-btn" onclick="addMoney(1.5)">দেখুন</button></div>
+        <div class="task-item"><span>অ্যাড টাস্ক - ৫</span><button class="task-btn" onclick="addMoney(1.5)">দেখুন</button></div>
+        
+        <h4 style="margin:15px 0;">সোশ্যাল টাস্ক (৩টি অপশন)</h4>
+        <div class="task-item"><span>টেলিগ্রাম জয়েন</span><button class="task-btn" style="background:#3182ce;">জয়েন</button></div>
+        <div class="task-item"><span>ইউটিউব সাবস্ক্রাইব</span><button class="task-btn" style="background:#e53e3e;">সাবস্ক্রাইব</button></div>
+        <div class="task-item"><span>ফেসবুক লাইক</span><button class="task-btn" style="background:#2b6cb0;">লাইক</button></div>
     </div>
 
-    <div id="withdraw" class="container">
-        <div class="section-title">টাকা উত্তোলন</div>
-        <div class="withdraw-info">
-            <p>উত্তোলনযোগ্য ব্যালেন্স</p>
-            <h1 id="withBal">৳ 0.00</h1>
+    <div id="p3" class="container">
+        <div class="cond-card">
+            <div class="cond-row"><span>সর্বনিম্ন উত্তোলন:</span><span style="color:red;font-weight:bold;">৳৫০০</span></div>
+            <div class="cond-row"><span>রেফারেল প্রয়োজন:</span><span id="cR">০/২০</span></div>
+            <div class="cond-row"><span>টাস্ক সম্পন্ন:</span><span id="cA">০/১০০</span></div>
         </div>
-        <div class="section-title">শর্তাবলী চেক</div>
-        <div style="background: white; border-radius: 15px; overflow: hidden;">
-            <div class="condition-item"><span>নূন্যতম ৳১০০</span><span class="fail">✕</span></div>
-            <div class="condition-item"><span>২০টি রেফারেল</span><span class="fail" id="condRef">0/20</span></div>
-            <div class="condition-item"><span>১০০টি এড দেখা</span><span class="fail" id="condAds">0/100</span></div>
-        </div>
-        <div class="section-title">পেমেন্ট মেথড</div>
         <div class="method-grid">
-            <div class="method-card"><p>bKash</p></div>
-            <div class="method-card"><p>Nagad</p></div>
+            <div class="method selected" onclick="selM('bKash', this)">বিকাশ</div>
+            <div class="method" onclick="selM('Nagad', this)">নগদ</div>
+            <div class="method" onclick="selM('Rocket', this)">রকেট</div>
+            <div class="method" onclick="selM('USD', this)">USD</div>
+        </div>
+        <input type="text" class="withdraw-input" placeholder="একাউন্ট নাম্বার">
+        <input type="number" class="withdraw-input" placeholder="টাকার পরিমান">
+        <button class="btn btn-earn" style="width:100%;" onclick="alert('অনুরোধ পাঠানো হয়েছে!')">উত্তোলন রিকোয়েস্ট পাঠান</button>
+    </div>
+
+    <div id="p4" class="container">
+        <div class="prof-top">
+            <img src="https://ui-avatars.com/api/?name=Arnob&background=ed8936&color=fff">
+            <h2>FX™ ARNOB TRADER</h2>
+            <p>আইডি: 7218579149</p>
+        </div>
+        <div class="ref-box" style="background:#2d3748;">
+            <p style="font-size:12px; margin-bottom:5px;">রেফার লিংক:</p>
+            <input type="text" value="https://t.me/Bot?start=7218579149" readonly style="width:100%; padding:8px; border-radius:5px; border:none; color:#2d3748;">
+        </div>
+        <div class="prof-btn-row">
+            <button class="rules-bar" style="width:100%; margin:0;">আপডেট চ্যানেল</button>
+            <button class="rules-bar" style="width:100%; background:#1a202c; color:white;" onclick="location.reload()">রিফ্রেস করুন</button>
         </div>
     </div>
 
-    <div id="admin" class="container">
-        <div class="section-title" style="color:#ef4444;"><i class="fas fa-user-shield"></i> সেন্ট্রাল অ্যাডমিন প্যানেল</div>
-        <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-            
-            <label style="font-weight: bold; font-size: 14px;">ইউজার ব্যালেন্স সেট করুন (৳)</label>
-            <input type="number" id="inputBal" class="admin-input" placeholder="যেমন: 500">
-
-            <label style="font-weight: bold; font-size: 14px;">মোট অ্যাড ভিউ সংখ্যা</label>
-            <input type="number" id="inputAds" class="admin-input" placeholder="যেমন: 25">
-
-            <label style="font-weight: bold; font-size: 14px;">মোট রেফারেল সংখ্যা</label>
-            <input type="number" id="inputRef" class="admin-input" placeholder="যেমন: 5">
-
-            <label style="font-weight: bold; font-size: 14px;">টেলিক্রাম চ্যানেল টাস্ক লিংক</label>
-            <input type="text" id="inputT1" class="admin-input" placeholder="https://t.me/yourchannel">
-
-            <label style="font-weight: bold; font-size: 14px;">ইউটিউব সাবস্ক্রাইব লিংক</label>
-            <input type="text" id="inputT2" class="admin-input" placeholder="https://youtube.com/c/yourchannel">
-
-            <button class="btn-admin-save" onclick="saveAdminData()">আপডেট ডাটা সেভ করুন</button>
-        </div>
-    </div>
-
-    <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i><span>হোম</span></div>
-        <div class="nav-item" onclick="switchTab('tasks', this)"><i class="fas fa-briefcase"></i><span>টাস্ক</span></div>
-        <div class="nav-item" onclick="switchTab('withdraw', this)"><i class="fas fa-wallet"></i><span>উইথড্র</span></div>
-        <div class="nav-item" id="adminNav" style="display:none;" onclick="switchTab('admin', this)"><i class="fas fa-user-shield" style="color:#ef4444;"></i><span style="color:#ef4444;">অ্যাডমিন</span></div>
+    <div class="navbar">
+        <div id="n1" class="nav-item active" onclick="nav('p1', 'n1')"><i class="fas fa-home"></i><span>হোম</span></div>
+        <div id="n2" class="nav-item" onclick="nav('p2', 'n2')"><i class="fas fa-tasks"></i><span>টাক্স</span></div>
+        <div id="n3" class="nav-item" onclick="nav('p3', 'n3')"><i class="fas fa-wallet"></i><span>উত্তোলন</span></div>
+        <div id="n4" class="nav-item" onclick="nav('p4', 'n4')"><i class="fas fa-user"></i><span>প্রোফাইল</span></div>
     </div>
 
     <script>
-        // গ্লোবাল ভেরিয়েবল (লোকাল স্টোরেজ থেকে ডাটা লোড হবে)
-        let balance = localStorage.getItem('bot_bal') || "0.00";
-        let ads = localStorage.getItem('bot_ads') || "0";
-        let refers = localStorage.getItem('bot_ref') || "0";
-        let t1Link = localStorage.getItem('bot_t1') || "https://t.me/";
-        let t2Link = localStorage.getItem('bot_t2') || "https://youtube.com/";
-
-        function updateUI() {
-            document.getElementById('topBal').innerText = parseFloat(balance).toFixed(2);
-            document.getElementById('mainBal').innerText = "৳ " + parseFloat(balance).toFixed(2);
-            document.getElementById('withBal').innerText = "৳ " + parseFloat(balance).toFixed(2);
-            document.getElementById('statAds').innerText = ads;
-            document.getElementById('statRef').innerText = refers;
-            document.getElementById('condRef').innerText = refers + "/20";
-            document.getElementById('condAds').innerText = ads + "/100";
-        }
-
-        function switchTab(tabId, el) {
+        let bal = 0; let ads = 0; let ref = 0;
+        function nav(pId, nId) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            if(el) {
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-            }
+            document.getElementById(pId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(nId).classList.add('active');
         }
-
-        // সিক্রেট ক্লিক ট্রিপার (৫ বার নাম "FX™ ARNOB TRADER" এ ক্লিক করলে প্যানেল খুলবে)
-        let clickCount = 0;
-        function adminTrigger() {
-            clickCount++;
-            if(clickCount === 5) {
-                let pass = prompt("অ্যাডমিন সিক্রেট পিন কোড দিন:");
-                if(pass === "9900") { // আপনার সিক্রেট পাসওয়ার্ড "9900"
-                    document.getElementById('adminNav').style.display = "block";
-                    alert("অ্যাডমিন মোড অ্যাক্টিভেটেড! নিচে ডানপাশে দেখুন।");
-                    switchTab('admin', document.getElementById('adminNav'));
-                    
-                    // ইনপুট বক্সে বর্তমান ডাটা ফিল করা
-                    document.getElementById('inputBal').value = balance;
-                    document.getElementById('inputAds').value = ads;
-                    document.getElementById('inputRef').value = refers;
-                    document.getElementById('inputT1').value = t1Link;
-                    document.getElementById('inputT2').value = t2Link;
-                } else {
-                    alert("ভুল পাসওয়ার্ড!");
-                    clickCount = 0;
-                }
-            }
+        function addMoney(v) {
+            bal += v; ads++;
+            update();
+            alert("টাকা যোগ হয়েছে!");
         }
-
-        function saveAdminData() {
-            balance = document.getElementById('inputBal').value || "0";
-            ads = document.getElementById('inputAds').value || "0";
-            refers = document.getElementById('inputRef').value || "0";
-            t1Link = document.getElementById('inputT1').value || "https://t.me/";
-            t2Link = document.getElementById('inputT2').value || "https://youtube.com/";
-
-            localStorage.setItem('bot_bal', balance);
-            localStorage.setItem('bot_ads', ads);
-            localStorage.setItem('bot_ref', refers);
-            localStorage.setItem('bot_t1', t1Link);
-            localStorage.setItem('bot_t2', t2Link);
-
-            updateUI();
-            alert("সব ডাটা সফলভাবে আপডেট করা হয়েছে!");
-            switchTab('home');
+        function update() {
+            document.getElementById('hBal').innerText = bal.toFixed(2);
+            document.getElementById('mBal').innerText = "৳ " + bal.toFixed(2);
+            document.getElementById('sAds').innerText = ads;
+            document.getElementById('sRef').innerText = ref;
+            document.getElementById('cR').innerText = ref + "/২০";
+            document.getElementById('cA').innerText = ads + "/১০০";
         }
-
-        // শুরুতে রান হবে
-        updateUI();
+        function selM(m, e) {
+            document.querySelectorAll('.method').forEach(o => o.classList.remove('selected'));
+            e.classList.add('selected');
+        }
+        function openAdmin() {
+            let p = prompt("পিন দিন:");
+            if(p === "9900") alert("অ্যাডমিন প্যানেল সক্রিয়!");
+        }
     </script>
 </body>
 </html>
