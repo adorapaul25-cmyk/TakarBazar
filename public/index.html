@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FX™ ARNOB TRADER</title>
-    <script src="https://telegram.org/js/telegram-webapp.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-weight/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -185,34 +184,31 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // স্মার্ট বাইপাস মেকানিজম (টেলিগ্রাম অবজেক্ট না থাকলে ডিফল্ট ডেমো ডাটা ধরবে)
-        let tgUser = null;
-        try {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
-                tgUser = window.Telegram.WebApp.initDataUnsafe.user;
-                window.Telegram.WebApp.expand();
-            }
-        } catch (e) {
-            console.log("Not running inside Telegram, switching to Demo Mode.");
-        }
-
-        // যদি টেলিগ্রাম ডাটা না পায়, তবে রিভিউ এর জন্য ডেমো ডাটা দিয়ে ড্যাশবোর্ড ওপেন করবে
-        if (!tgUser) {
-            tgUser = { id: "7218579149", first_name: "FX™ ARNOB TRADER", username: "developerarnob" };
-        }
-        
-        const userId = tgUser.id;
-        const userName = tgUser.first_name + (tgUser.last_name ? " " + tgUser.last_name : "");
-        const userPath = `users/${userId}`;
-        
-        let userData = { name: userName, balance: 265.00, totalAds: 274, totalRef: 31, id: userId };
+        let userName = "FX™ ARNOB TRADER"; // ডিফল্ট নাম
+        let userId = "7218579149";       // ডিফল্ট ডেমো আইডি
+        let userPath;
+        let userData;
         let currentMethod = "bKash";
         let clickCount = 0;
 
         window.onload = function() {
-            document.getElementById('refLink').value = `https://t.me/TakarBazarBot?start=${userId}`;
-            
+            // ২ সেকেন্ডের সুন্দর লোডিং অ্যানিমেশন দেখাবে
             setTimeout(() => {
+                // ইউজার থেকে নাম ইনপুট নেওয়ার পপ-আপ বক্স
+                let inputName = prompt("আপনার সুন্দর নামটি লিখুন:", "FX™ ARNOB TRADER");
+                if (inputName && inputName.trim() !== "") {
+                    userName = inputName.trim();
+                }
+
+                // নামের ওপর ভিত্তি করে একটি ইউনিক আইডি আইডি জেনারেট করা (ডাটাবেজ ট্র্যাকিং এর জন্য)
+                userId = Math.abs(userName.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)).toString();
+                userPath = `users/${userId}`;
+
+                // ডিফল্ট স্টার্ট আপ ব্যালেন্স ও ডাটা সেট করা
+                userData = { name: userName, balance: 265.00, totalAds: 274, totalRef: 31, id: userId };
+                document.getElementById('refLink').value = `https://t.me/TakarBazarBot?start=${userId}`;
+
+                // ফায়ারবেস থেকে আগের ডাটা চেক করা
                 get(ref(db, userPath)).then((snapshot) => {
                     if (snapshot.exists()) {
                         userData = snapshot.val();
@@ -222,13 +218,12 @@
                     renderUI();
                     loadLiveTasks();
                     document.getElementById('loading-screen').style.display = 'none';
-                }).catch((error) => {
-                    // ফায়ারবেস ইরর হ্যান্ডেল করে সরাসরি অ্যাপ চালু করা
+                }).catch(() => {
                     renderUI();
                     loadLiveTasks();
                     document.getElementById('loading-screen').style.display = 'none';
                 });
-            }, 2000); // ২ সেকেন্ড নিখুঁত লোডিং নেবে
+            }, 2000); 
         };
 
         function renderUI() {
@@ -236,7 +231,7 @@
             document.getElementById('profName').innerText = userData.name;
             document.getElementById('profId').innerText = "আইডি: " + userData.id;
             
-            let avatarUrl = tgUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=f97316&color=fff`;
+            let avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name)}&background=f97316&color=fff`;
             document.getElementById('uAvatar').src = avatarUrl;
             document.getElementById('pAvatarMain').src = avatarUrl;
 
@@ -299,7 +294,7 @@
                 userId: userId, name: userData.name, method: currentMethod, number: num, amount: amt, status: "Pending"
             }).then(() => {
                 renderUI();
-                alert("উইথड्र রিকোয়েস্ট পাঠানো হয়েছে!");
+                alert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
             });
         };
 
